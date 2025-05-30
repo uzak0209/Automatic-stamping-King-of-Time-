@@ -20,4 +20,5 @@ jobs:
       working-directory: rustfile
       run: cargo build --verbose
     - name: Run tests
+      working-directory: rustfile
       run: cargo test --verbose
