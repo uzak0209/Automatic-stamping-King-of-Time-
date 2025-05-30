@@ -1,30 +1,27 @@
 use std::collections::HashMap;
 use std::{fs, io};
-use std::num::ParseIntError;
-use chrono::{DateTime, FixedOffset, Local};
+use chrono::{ Local};
 use reqwest::blocking::Client;
 use serde::Serialize;
-#[derive(Debug)]
-struct Config {
-    id: String, 
-}
+
 
 
 #[derive(Serialize)]
+#[derive(Debug)]
 struct Body{
     time:String,
     isOmittedWorkingDay:bool,
-    code:i8,
-    divisionCode:i32,
+    code:String,
+    divisionCode:String,
 }
 impl Body {
     // Example constructor for Body
-    pub fn new(time: String, code: i8, division_code: i32) -> Self {
+    pub fn new(time: String, code: String, divisionCode:String) -> Self {
         Body {
             time,
             isOmittedWorkingDay: true,
             code,
-            divisionCode: division_code,
+            divisionCode,
         }
     }
 }
@@ -58,36 +55,42 @@ fn read_env() -> Result<HashMap<String,String>, MyError> {
     Ok(map)
 }
 fn main(){
-    let local_dt=Local::now();
-    let offset = FixedOffset::east_opt(9 * 3600).unwrap();
-    let fixed_dt: DateTime<FixedOffset> = local_dt.with_timezone(&offset);
-    let rfc3339_str = fixed_dt.to_rfc3339();
-    print!("{:?}",rfc3339_str);
-    let body=Body::new( rfc3339_str,1,1);
-    let mut token:String;
-    let mut employeeKey:String;
-    match read_env() {
+    let token:String;
+    let employeeKey:String;
+    let divisionCode:String;
+        match read_env() {
         Ok(content) => {
             token=content["TOKEN"].to_string();
             employeeKey=content["ID"].to_string();
+            divisionCode=content["DIVISION_CODE"].to_string();
         }
         Err(e) => {
             e.print_message();
             panic!();
         }
     }
+    let now = Local::now();
+    let formatted = now.format("%Y-%m-%dT%H:%M:%S").to_string();
+    let body=Body::new( formatted,"1".to_string(),divisionCode);
         // APIのURL
-    let url = format!("http://api.kingtime.jp/daily-workings/timerecord/{employeeKey}");
-
+    let url = format!("https://api.kingtime.jp/daily-workings/timerecord/{}",employeeKey);
+    print!("{:?}",body);
     // クライアント作成
     let client = Client::new();
 
     let response = client
         .post(url)
         .header("Authorization", format!("Bearer {}", token)) 
-        .header("Content-Type", "application/json")
-        .body(json(&body))
-        .send()?;
-
-    
+        .json(&body)
+        .timeout(std::time::Duration::from_secs(5))
+        .send();
+    match response{
+        Ok(res) => {
+            let status = res.status();
+            println!("ステータスコード: {}", status);
+        }
+        Err(e) => {
+            eprintln!("エラーが発生しました: {}", e);
+        }
+    }
 }
