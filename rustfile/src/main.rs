@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::{fs, io};
 use std::num::ParseIntError;
 use chrono::{DateTime, FixedOffset, Local};
+use reqwest::blocking::Client;
 #[derive(Debug)]
 struct Config {
     id: String, 
@@ -61,11 +62,11 @@ fn main(){
     print!("{:?}",rfc3339_str);
     let body=Body::new( rfc3339_str,1,1);
     let mut token:String;
-    let mut id:String;
+    let mut employeeKey:String;
     match read_env() {
         Ok(content) => {
             token=content["TOKEN"].to_string();
-            id=content["ID"].to_string();
+            employeeKey=content["ID"].to_string();
         }
         Err(e) => {
             e.print_message();
@@ -73,16 +74,17 @@ fn main(){
         }
     }
         // APIのURL
-    let url = format("https://example.com/api/shutdown");
+    let url = format!("http://api.kingtime.jp/daily-workings/timerecord/{employeeKey}");
 
     // クライアント作成
     let client = Client::new();
 
-    // リクエスト送信
-    let res = client
+    let response = client
         .post(url)
-        .bearer_auth(token)
-        .json(&body)?;
-        
+        .header("Authorization", format!("Bearer {}", token)) 
+        .header("Content-Type", "application/json")
+        .body(body)
+        .send()?;
+
     
 }
