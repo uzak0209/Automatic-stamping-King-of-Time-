@@ -47,7 +47,7 @@ impl MyError {
 }
 
 fn read_env() -> Result<HashMap<String,String>, MyError> {
-    let line = fs::read_to_string("./.env")?;//ファイル読み込み
+    let line = fs::read_to_string("./default.env")?;//ファイル読み込み
     let map: HashMap<String, String> = line.lines()//ラインを改行で分割
         .filter_map(|line| line.split_once('='))//ラインごとに=で区切ってmap関数に(k,v)を渡す
         .map(|(k, v)| (k.trim().to_string(), v.trim().to_string()))
