@@ -16,9 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Move
-      run: cd rustfile
     - name: Build
+      working-directory: rustfile
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
