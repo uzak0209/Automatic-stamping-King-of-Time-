@@ -3,11 +3,14 @@ use std::{fs, io};
 use std::num::ParseIntError;
 use chrono::{DateTime, FixedOffset, Local};
 use reqwest::blocking::Client;
+use serde::Serialize;
 #[derive(Debug)]
 struct Config {
     id: String, 
 }
-#[derive(Debug)]
+
+
+#[derive(Serialize)]
 struct Body{
     time:String,
     isOmittedWorkingDay:bool,
@@ -83,7 +86,7 @@ fn main(){
         .post(url)
         .header("Authorization", format!("Bearer {}", token)) 
         .header("Content-Type", "application/json")
-        .body(body)
+        .body(json(&body))
         .send()?;
 
     
