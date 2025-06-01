@@ -58,14 +58,17 @@ fn write() -> io::Result<()> {
     stdin.lock().read_line(&mut input)?;
     let name = input.trim(); // 改行削除
     writeln!(file, "ID={}", name)?;
+    input.clear();
     println!("divisionCodeを入力してください");
     stdin.lock().read_line(&mut input)?;
     let name = input.trim(); // 改行削除
     writeln!(file, "DIVISION_CODE={}", name)?;
+    input.clear();
     println!("TOKENを入力してください");
     stdin.lock().read_line(&mut input)?;
     let name = input.trim(); // 改行削除
     writeln!(file, "TOKEN={}", name)?;
+    input.clear();
     println!(".env を書き出しました: {}", env_path.display());
     Ok(())
 }
