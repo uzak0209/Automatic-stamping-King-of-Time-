@@ -58,7 +58,7 @@ fn main(){
     let token:String;
     let employeeKey:String;
     let divisionCode:String;
-        match read_env() {
+    match read_env() {
         Ok(content) => {
             token=content["TOKEN"].to_string();
             employeeKey=content["ID"].to_string();
